@@ -4,17 +4,18 @@ import express, {
   type Response,
 } from "express";
 import { Pool } from "pg";
+import config from "./config/index.env";
 
 const app: Application = express();
-const port = 3000;
+const port = config.port;
+console.log(port)
 
 app.use(express.json());
 
 // connectionString
 
 const pool = new Pool({
-  connectionString:
-    "postgresql://neondb_owner:npg_9CkYaRW1gZyH@ep-super-morning-ap6blemq-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+  connectionString: config.connection_String,
 });
 
 const initDB = async () => {
@@ -23,7 +24,7 @@ const initDB = async () => {
             CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY ,
             name VARCHAR(50),
-            email VARCHAR(255) NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
             role VARCHAR(30) DEFAULT 'contributor',
             created_at TIMESTAMP DEFAULT NOW()
@@ -53,14 +54,21 @@ app.get("/", (req: Request, res: Response) => {
 
 app.post("/", async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
-  const result = await pool.query(
-    `
+  try {
+    const result = await pool.query(
+      `
         INSERT INTO users(name, email, password) VALUES ($1,$2,$3) RETURNING *
         `,
-    [name, email, password],
-  );
-  console.log(result);
-  console.log(req.body);
+      [name, email, password],
+    );
+    console.log(result.rows[0]);
+  } catch (error: any) {
+    res.status(500).json({
+      message: error.message,
+      error: error,
+    });
+  }
+  console.log("result:-", req.body);
 });
 
 app.listen(port, () => {
