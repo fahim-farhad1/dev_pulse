@@ -3,7 +3,6 @@ import express, {
   type Request,
   type Response,
 } from "express";
-import { pool } from "./DB";
 import { userRouter } from "./modules/users/users.router";
 
 const app: Application = express();
@@ -16,7 +15,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.use("/api/user", userRouter);
+app.use("/api/auth/signup", userRouter);
 
 
 export default app;
