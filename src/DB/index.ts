@@ -25,3 +25,20 @@ export const initDB = async () => {
     console.log(error);
   }
 };
+
+export const createIssueTable = async () => {
+  try {
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS issues (
+        id SERIAL PRIMARY KEY,
+        userId INT,
+        title VARCHAR(200),
+        description TEXT,
+        type VARCHAR(20)
+        )
+        `);
+    console.log("data create successfully");
+  } catch (error) {
+    console.log(error);
+  }
+};
