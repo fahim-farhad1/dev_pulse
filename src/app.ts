@@ -4,6 +4,9 @@ import express, {
   type Response,
 } from "express";
 import { userRouter } from "./modules/users/users.router";
+import { IssuesRouter } from "./modules/Issues/issues.routes";
+import { authRoute } from "./modules/auth/auth.route";
+import auth from "./middlewere/auth";
 
 const app: Application = express();
 
@@ -15,7 +18,8 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.use("/api/auth/signup", userRouter);
-
+app.use("/api/auth", userRouter);
+app.use("/api/issues", IssuesRouter);
+app.use("/api/auth",auth(), authRoute)
 
 export default app;

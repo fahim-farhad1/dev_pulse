@@ -13,7 +13,10 @@ export const initDB = async () => {
             name VARCHAR(50),
             email VARCHAR(255) UNIQUE NOT NULL,
             password TEXT NOT NULL,
-            role VARCHAR(30) DEFAULT 'contributor',
+            role VARCHAR(30)
+            NOT NULL
+            DEFAULT 'contributor'
+            CHECK (role IN ('contributor', 'maintainer')),
             created_at TIMESTAMP DEFAULT NOW()
     )
             `);
@@ -21,14 +24,4 @@ export const initDB = async () => {
   } catch (error) {
     console.log(error);
   }
-};
-export const updateDb = async () => {
-  try {
-    await pool.query(`
-        ALTER TABLE users 
-        ALTER COLUMN role NOT NULL    DEFAULT 'contributor' 
-        CHECK (role IN ('contributor', 'maintainer')),
-        `);
-    console.log("role field updated!");
-  } catch (error) {}
 };

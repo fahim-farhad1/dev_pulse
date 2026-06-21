@@ -16,6 +16,17 @@ const createUserIoDB = async (payLoad: Iuser) => {
   return result;
 };
 
+// const loginUserIntoDb = async (email: Iuser) => {
+//   const result = await pool.query(
+//     `
+//         SELECT * FROM users WHERE email=$1
+//     `,
+//     [email],
+//   );
+// // console.log("service :- ", result )
+//   return result;
+// };
+
 const getAllUsersIntoDB = async () => {
   const result = await pool.query(`
         SELECT * FROM users
@@ -27,4 +38,5 @@ const getAllUsersIntoDB = async () => {
 export const userService = {
   createUserIoDB,
   getAllUsersIntoDB,
+  // loginUserIntoDb,
 };
