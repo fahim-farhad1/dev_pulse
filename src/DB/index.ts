@@ -36,7 +36,8 @@ export const createIssueTable = async () => {
         description TEXT,
         type VARCHAR(20),
         status VARCHAR(20),
-        created_at TIMESTAMP
+        created_at TIMESTAMP,
+        updated_at TIMESTAMP
         )
         `);
     console.log("data create successfully");
