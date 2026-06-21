@@ -31,10 +31,12 @@ export const createIssueTable = async () => {
     await pool.query(`
         CREATE TABLE IF NOT EXISTS issues (
         id SERIAL PRIMARY KEY,
-        userId INT,
+        reporter_id INT,
         title VARCHAR(200),
         description TEXT,
-        type VARCHAR(20)
+        type VARCHAR(20),
+        status VARCHAR(20),
+        created_at TIMESTAMP
         )
         `);
     console.log("data create successfully");

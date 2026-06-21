@@ -16,7 +16,6 @@ const createIssues = async (req: Request, res: Response) => {
         status: ` ${issue.status} `,
         reporter_id: ` ${issue.reporter_id} `,
         created_at: ` ${issue.created_at} `,
-        updated_at: ` ${issue.updated_at}`,
       },
     });
   } catch (error) {}
