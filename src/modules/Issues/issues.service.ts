@@ -22,24 +22,36 @@ const createIssuesIntoDb = async (reporter_id: Iuser, payload: any) => {
 
 const updateIssueIntoDb = async (
   reporter_id: Iuser,
+  role: string,
   id: string,
   payLoad: any,
 ) => {
   const { title, description, type } = payLoad;
   const updated_at = new Date();
   console.log("update_at", updated_at);
-
-  const result = await pool.query(
-    `
-        UPDATE issues SET title=$1, description=$2, type=$3,updated_at=$4  WHERE id=$5 AND reporter_id=$6 RETURNING *
+  if (role === "maintainer") {
+    const result = await pool.query(
+      `
+        UPDATE issues SET title=COALESCE($1, title) , description=COALESCE($2, description), type=COALESCE($3, type), updated_at=$4  WHERE id=$5 RETURNING *
         `,
-    [title, description, type, updated_at, id, reporter_id],
-  );
-  if (result.rowCount === 0) {
-    throw new Error("Issue not found or you are not authorized to update it");
+      [title, description, type, updated_at, id],
+    );
+    if (result.rowCount === 0) {
+      throw new Error("Issue not found or you are not authorized to update it");
+    }
+    return result;
+  } else {
+    const result = await pool.query(
+      `
+        UPDATE issues SET title=COALESCE($1, title) , description=COALESCE($2, description), type=COALESCE($3, type), updated_at=$4  WHERE id=$5 AND reporter_id=$6 RETURNING *
+        `,
+      [title, description, type, updated_at, id, reporter_id],
+    );
+    if (result.rowCount === 0) {
+      throw new Error("Issue not found or you are not authorized to update it");
+    }
+    return result;
   }
-
-  return result;
 };
 
 const getAllIssuesIntoDb = async () => {
@@ -48,8 +60,43 @@ const getAllIssuesIntoDb = async () => {
     `);
   return result;
 };
+
+const getSingleIssueIntoDb = async (id: string) => {
+  try {
+    const result = await pool.query(
+      `
+    SELECT  i.*, u.name, u.role FROM issues i JOIN users u ON i.reporter_id = u.id WHERE i.id=$1
+    `,
+      [id],
+    );
+    return result;
+  } catch (error) {
+    // throw new Error(`${error}`)
+    console.log(error);
+  }
+};
+
+const deleteIssueIntoDB = async (role: string, id: string) => {
+  console.log("db Role", role);
+  try {
+    if (role === "maintainer") {
+      const result = await pool.query(
+        `
+      DELETE FROM issues WHERE id=$1 RETURNING *
+      `,
+        [id],
+      );
+      return result;
+    } else throw new Error("you are not maintainer!");
+  } catch (error) {
+    throw Error
+  }
+};
+
 export const issuesService = {
   createIssuesIntoDb,
   updateIssueIntoDb,
   getAllIssuesIntoDb,
+  getSingleIssueIntoDb,
+  deleteIssueIntoDB,
 };
