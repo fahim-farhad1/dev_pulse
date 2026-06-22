@@ -1,9 +1,8 @@
 import { pool } from "../../DB";
 import type { Iuser } from "../users/user.interface";
 
-const createIssuesIntoDb = async (user: Iuser, payload: any) => {
-  console.log("payload", payload);
-  const reporter_id = user.id;
+const createIssuesIntoDb = async (reporter_id: Iuser, payload: any) => {
+  console.log("payload", reporter_id);
   const created_at = new Date();
   const status = "open";
   const { title, description, type, updated_at } = payload;
@@ -21,21 +20,36 @@ const createIssuesIntoDb = async (user: Iuser, payload: any) => {
   }
 };
 
-const updateIssueIntoDb = async (id: string, payLoad: any) => {
+const updateIssueIntoDb = async (
+  reporter_id: Iuser,
+  id: string,
+  payLoad: any,
+) => {
   const { title, description, type } = payLoad;
-  const updated_at = new Date()
-  console.log("update_at", updated_at)
+  const updated_at = new Date();
+  console.log("update_at", updated_at);
 
   const result = await pool.query(
     `
-        UPDATE issues SET title=$1, description=$2, type=$3,updated_at=$4  WHERE id=$5 RETURNING *
+        UPDATE issues SET title=$1, description=$2, type=$3,updated_at=$4  WHERE id=$5 AND reporter_id=$6 RETURNING *
         `,
-    [title, description, type, updated_at, id],
+    [title, description, type, updated_at, id, reporter_id],
   );
+  if (result.rowCount === 0) {
+    throw new Error("Issue not found or you are not authorized to update it");
+  }
 
+  return result;
+};
+
+const getAllIssuesIntoDb = async () => {
+  const result = pool.query(`
+    SELECT * FROM issues 
+    `);
   return result;
 };
 export const issuesService = {
   createIssuesIntoDb,
   updateIssueIntoDb,
+  getAllIssuesIntoDb,
 };

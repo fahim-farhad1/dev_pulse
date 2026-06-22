@@ -1,13 +1,10 @@
 import type { Request, Response } from "express";
 import { authService } from "./auth.service";
-import jwt from "jsonwebtoken";
 
 const loginUser = async (req: Request, res: Response) => {
   try {
     const result = await authService.loginUserIntoDb(req.body);
-    console.log(result)
-    const user = result
-    const accessTokenDecode = jwt.decode(result,)
+    console.log("token",result)
 
     return res.status(200).json({
       success: true,
